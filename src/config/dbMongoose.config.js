@@ -15,10 +15,10 @@ mongoose.connect('mongodb://localhost:27017/PF_FSD_UTN')
       console.error('La conexion con mongoDB ha fallado', error)
   }
 )
-.finally( 
-  () => {
-      console.log('El proceso de conexion con la DB esta finalizado')
-  }
-)
+// .finally( 
+//   () => {
+//       console.log('El proceso de conexion con la DB esta finalizado')
+//   }
+// )
 
 export default mongoose

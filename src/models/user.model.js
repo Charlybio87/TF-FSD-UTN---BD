@@ -1,41 +1,28 @@
 import mongoose from "mongoose"
 
+// ESQUEMA DEL USUARIO CON SUS REQUERIMIENTOS
 const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    password: {
-        type: String,
-        required: true
-    },
-    emailVerified: {
-        type: Boolean,
-        default: false
-    },
-    verficationToken: {
-        type: String
-    },
-    fecha_creacion: {
-        type: Date,
-        default: Date.now
-    },
-    role: {
-        type: String,
-        default: 'user',
-        required: true
-    },
-    activo: {
-        type: Boolean,
-        default: true
-    }
+    username: {type: String, required: true},
+    email: {type: String, required: true, unique: true},
+    password: {type: String, required: true},
+    verified: {type: Boolean, default: false},
+    verificationToken: {type: String},
+    createdAt: {type: Date, default: Date.now},
+    role: {type: String, default: 'user',required: true},
+    activo: {type: Boolean, default: true}
 })
 
-const User = mongoose.model('User', userSchema)
+// MODELO USER
+const User = mongoose.model('User', userSchema) 
+
+// const nuevo_usuario = new User({
+//   name: 'charly',
+//   email: 'charly@gmail.com',
+//   password: '123456',
+//   emailVerified: false,
+//   verficationToken: 'tokenX',
+//   activo: true
+// })
+// nuevo_usuario.save()
 
 export default User

@@ -1,11 +1,13 @@
 import express from 'express'
-import { loginAuthController, registerAuthController, requestAuthController } from '../controllers/auth.controller.js'
-import { authMiddleware } from '../middlewares/auth.middleware.js'
+import { forgotPasswordAuthController, loginAuthController, registerAuthController, requestAuthController, resetPasswordAuthController, verifyEmailController } from '../controllers/auth.controller.js'
 
 const authRoute = express.Router()
 
 authRoute.get('/request', requestAuthController)
 authRoute.post('/register', registerAuthController)
-authRoute.post('/login', authMiddleware, loginAuthController)
+authRoute.get('/verify-email', verifyEmailController)
+authRoute.post('/login', loginAuthController)
+authRoute.post('/forgot-password', forgotPasswordAuthController)
+authRoute.post('/reset-password', resetPasswordAuthController)
 
 export default authRoute

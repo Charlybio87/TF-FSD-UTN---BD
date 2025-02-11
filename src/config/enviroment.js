@@ -7,6 +7,7 @@ const ENVIROMENT = {
   SECRET_KEY_JWT: process.env.JWT_SECRET,
   EMAIL_USER: process.env.EMAIL_USER,
   EMAIL_PASS: process.env.EMAIL_PASS,
+  URL_FRONTEND: process.env.URL_FRONTEND, //en local podrian usar localhost
 
 }
 
