@@ -115,39 +115,108 @@ export const registerAuthController = async (req, res) =>{
 }
 
 export const verifyEmailController = async (req,res) =>{
-  try {
-    const {[QUERY.VERIFICATION_TOKEN]:verification_token} = req.query
+  // try {
+  //   const {[QUERY.VERIFICATION_TOKEN]:verification_token} = req.query
+  //   if(!verification_token){
+  //     return res.send(`
+  //       <h1>Falta el token de verificacion!</h1>
+  //       <p>Status: 400</p>
+  //       `
+  //     )
+  //   }
+  //   //Verifica el TOKEN (lo decodifico)
+  //   const payload = jwt.verify(verification_token,ENVIROMENT.SECRET_KEY_JWT)
+  //   const user_to_verify = await findUserByEmail(payload.email)
+  //   if(!user_to_verify){
+  //     return res.send(`
+  //       <h1>El usuario no existe!</h1>
+  //       <p>Status: 404</p>
+  //       `)
+  //   }
+  //   // Comparamos si son distintos el verif del usuario con el verif que recibimos
+  //   if(user_to_verify.verificationToken !== verification_token){
+  //     return res.send(`
+  //       <h1>El token de verificacion no coincide!</h1>
+  //       <p>Status: 400</p>
+  //     `)
+  //   }
+  //   // Si todo es correcto, actualizamos el usuario del MongoDB
+  //   user_to_verify.verified = true
+  //   await user_to_verify.save()
+  //   return res.send(`
+  //     <h1>Usuario verificado con exito!</h1>
+  //     <a href='${process.env.URL_FRONTEND}'>login aqui</a>
+  //     `
+  //   )
+  // }
+  try{
+    const {[QUERY.VERIFICATION_TOKEN]: verification_token} = req.query
     if(!verification_token){
-      return res.send(`
-        <h1>Falta el token de verificacion!</h1>
-        <p>Status: 400</p>
-        `
-      )
+      return res.redirect(`${ENVIROMENT.URL_FRONTEND}/error?error=REQUEST_EMAIL_VERIFY_TOKEN`)
     }
-    //Verifica el TOKEN (lo decodifico)
-    const payload = jwt.verify(verification_token,ENVIROMENT.SECRET_KEY_JWT)
+
+    const payload = jwt.verify(verification_token, ENVIROMENT.SECRET_KEY_JWT)
+
     const user_to_verify = await findUserByEmail(payload.email)
     if(!user_to_verify){
-      return res.send(`
-        <h1>El usuario no existe!</h1>
-        <p>Status: 404</p>
-        `)
+      return res.redirect(`${ENVIROMENT.URL_FRONTEND}/error?error=REQUEST_EMAIL_VERIFY_TOKEN`)
     }
-    // Comparamos si son distintos el verif del usuario con el verif que recibimos
     if(user_to_verify.verificationToken !== verification_token){
-      return res.send(`
-        <h1>El token de verificacion no coincide!</h1>
-        <p>Status: 400</p>
-      `)
+        return res.redirect(`${ENVIROMENT.URL_FRONTEND}/error?error=RESEND_EMAIL_VERIFY_TOKEN`)
     }
-    // Si todo es correcto, actualizamos el usuario del MongoDB
     user_to_verify.verified = true
     await user_to_verify.save()
-    return res.send(`
-      <h1>Usuario verificado con exito!</h1>
-      <a href='${process.env.URL_FRONTEND}'>login aqui</a>
+    return res.redirect(`${ENVIROMENT.URL_FRONTEND}/login?verified=true`)
+  }
+  catch (error){
+    console.log(error)
+    res.json({
+      status: 500,
+      message: "Internal Server Error",
+      ok: false
+    })
+  }
+}
+
+export const resendVerifyEmailController = async (req, res) => {
+  try {
+    const { email } = req.body
+    const user = await findUserByEmail(email)
+    if(!user){
+      return res.json({
+        status: 404,
+        message: "User not found",
+        ok: false
+      })
+    }
+    const verificationToken = jwt.sign({email}, ENVIROMENT.SECRET_KEY_JWT, {expiresIn: '1d'})
+    console.log()
+    // Actualizar el token de verificación en el usuario
+    user.verificationToken = verificationToken; // Asignar el nuevo token
+    await user.save(); // Guardar los cambios en la base de datos
+
+    await sendMail({
+      to: email, // se envia email a quien se registra
+      subject: 'Reenvio de verificacion de tu mail para Baristacafé',
+      html: `
+      <h1>Verifica tu mail para Baristacafé</h1>
+      <p>Para verificar tu cuenta, haz click en el siguiente enlace: 
+        <a href='http://localhost:${ENVIROMENT.PORT}/api/auth/verify-email?${QUERY.VERIFICATION_TOKEN}=${verificationToken}'>
+          Verificar email
+        </a>
+      </p>
+      <p>Si no has solicitado la verificación de tu cuenta, ignora este mensaje
+      </p>
+      <p>Atentamente, Baristacafé</p>
       `
-    )
+    })
+    return res.json({
+      status: 200,
+      message: "Email de verificación reenviado con éxito",
+      ok: true,
+      data: {
+      }
+    })
   } catch (error) {
     console.log(error)
     res.json({
@@ -157,6 +226,7 @@ export const verifyEmailController = async (req,res) =>{
     })
   }
 }
+
 
 export const loginAuthController = async (req, res) => {
   try {
@@ -265,7 +335,7 @@ export const forgotPasswordAuthController = async (req, res) =>{
               subject: 'Restablecer contraseña',
               html: `
                   <h1>Restablecer contraseña</h1>
-                  <p>Haz click en el enlace de abajo para restablecer tu contraseña</p>
+                  <p>Haz click en el enlace para restablecer tu contraseña</p>
                   <a href='${reset_url}'>Restablecer contraseña</a>
               `
           })
@@ -311,4 +381,4 @@ export const resetPasswordAuthController = async (req, res) =>{
           status: 500,
       })
   }
-}  
+}
