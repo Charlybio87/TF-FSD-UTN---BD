@@ -1,14 +1,14 @@
 import express from 'express'
-import ENVIROMENT from '../config/enviroment.js'
-import { createrProductController, requestProductController } from '../controllers/product.controller.js'
-
+import { authMiddleware } from '../middlewares/auth.middleware.js'
+// import ENVIROMENT from '../config/enviroment.js'
+import { createProductController, deleteProductController, getAllProductController, getProductByIdController, requestProductController } from '../controllers/product.controller.js'
 const productRoute = express.Router()
 
-// productRouter.get('/:product_id')
 productRoute.get('/request', requestProductController)
-productRoute.post('/', createrProductController)
-// productRouter.post('/')
+productRoute.post('/', authMiddleware(['admin']), createProductController)
 // productRouter.put('/:product_id')
-// productRouter.delete('/:product_id')
+productRoute.delete('/:product_id', authMiddleware(['admin']), deleteProductController)
+productRoute.get('/:product_id', authMiddleware(['user','admin']), getProductByIdController)
+productRoute.get('/', authMiddleware(['user','admin']), getAllProductController)
 
 export default productRoute

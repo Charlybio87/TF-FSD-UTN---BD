@@ -34,11 +34,12 @@ const findUserByEmail = async(email)=>{
   return userFound
 }
 
-const createUser = async ({username, email, password, verificationToken}) =>{
+const createUser = async ({username, email, password,role, verificationToken}) =>{
   const nuevo_usuario = new User({
     username,
     email, 
     password,
+    role,
     verificationToken
   })
   return nuevo_usuario.save()
@@ -48,13 +49,13 @@ const createUser = async ({username, email, password, verificationToken}) =>{
 export const registerAuthController = async (req, res) =>{
   try {
     console.log(req.body)
-    const {username, email, password} = req.body
+    const {username, email, password, role} = req.body
 
     // Input validation
-    if (!username || !email || !password) {
+    if (!username || !email || !password || !role) {
       return res.status(400).json({
         status: 400,
-        message: "Name, email, and password are required.",
+        message: "Name, email, role and password are required.",
         ok: false
       })
     }
@@ -94,6 +95,7 @@ export const registerAuthController = async (req, res) =>{
       username: username, 
       email, 
       password: password_hash,
+      role: role,
       verificationToken
     })
     res.json({
@@ -232,10 +234,11 @@ export const loginAuthController = async (req, res) => {
   try {
     console.log(req.body)
 
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
     const errors = {
         email: null,
         password: null,
+        role: null
     };
 
     if (!email || !(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(email))) {
@@ -244,6 +247,10 @@ export const loginAuthController = async (req, res) => {
 
     if (!password) {
         errors.password = "You must enter a password";
+    }
+
+    if (!role) {
+      errors.role = "You must enter a role";
     }
 
     let hayErrores = false;
@@ -287,6 +294,7 @@ export const loginAuthController = async (req, res) => {
     const user_info =  {
         id: user_found._id,
         name: user_found.name,
+        role: user_found.role,
         email: user_found.email,
     }
 
@@ -300,6 +308,7 @@ export const loginAuthController = async (req, res) => {
             user_info: {
                 id: user_found._id,
                 name: user_found.name,
+                role: user_found.role,
                 email: user_found.email,
             },
             access_token: access_token

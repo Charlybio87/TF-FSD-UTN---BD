@@ -24,9 +24,11 @@ const productSchema = new mongoose.Schema({
         required: true
     },
     seller_id: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User', // Asegúrate de que esto coincida con el nombre del modelo User
         required: true
     },
+
     active: {
         type: Boolean,
         default: true

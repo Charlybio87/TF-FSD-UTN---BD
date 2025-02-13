@@ -32,9 +32,9 @@ app.use(express.json())
 })*/
 
 //Delegamos el flujo de consultas a /api/... al enrutador de status/products/...
-app.use('/api/status', statusRoute)
-app.use('/api/products', productRoute)
 app.use('/api/auth', authRoute)
+app.use('/api/products', productRoute)
+app.use('/api/status', statusRoute)
 
 
 
