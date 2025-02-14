@@ -99,18 +99,23 @@ export const getAllProductController = async (req, res) => {
   try {
       const products = await Product.find() // Obtener todos los productos directamente del modelo
       .populate('seller_id','username email')
-      res.status(200).json({
-          ok: true,
-          payload: {
-              products
+      res.json({
+        status: 200,
+        ok: true,
+        message: 'Productos obtenidos',
+        payload: 
+          {
+            products
           }
+
       })
   } catch (error) {
       console.error(error)
-      res.status(500).json({
-          ok: false,
-          message: "Hubo un error al obtener los productos!!", 
-          error: "Hubo un error al obtener los productos!!"
+      res.json({
+        status: 500,
+        ok: false,
+        message: 'Error al obtener los productos',
+        error: "Hubo un error al obtener los productos!!"
       })
   }
 }

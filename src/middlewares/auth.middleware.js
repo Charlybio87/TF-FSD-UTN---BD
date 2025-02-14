@@ -15,7 +15,7 @@ export const authMiddleware = (roles_permitidos) => {
             const access_token = auth_header.split(' ')[1]
 
             if (!access_token) {
-                return res.json({ message: 'El token de autorizacion esta malformado' })
+                return res.json({ message: 'El token de autorizacion esta mal formado' })
             }
 
             const user_session_payload_decoded = jwt.verify(access_token, ENVIROMENT.SECRET_KEY_JWT)
