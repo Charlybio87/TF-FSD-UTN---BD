@@ -31,7 +31,7 @@ import pool from "../config/mysql.config.js"
 
 // export default new UserRepository()
 
-class UserRepository{
+class userRepository{
     
     async createUser({username, email, password, role, verificationToken}){
         const queryStr = `
@@ -68,4 +68,4 @@ class UserRepository{
 
 }
 
-export default new UserRepository()
+export default new userRepository()

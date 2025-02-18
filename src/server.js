@@ -15,21 +15,13 @@ const PORT = ENVIROMENT.PORT
 // Se permite recibir consultas del origin
 app.use(
   cors({
-    origin: ENVIROMENT.URL_FRONTEND, // Direccion de dominio del frontend
+    origin: ENVIROMENT.URL_FRONTEND // Direccion de dominio del frontend
   })
 )
 
 // middleware recibe JSON
 app.use(express.json())
 
-// Conocer si el servidor recibe consulta
-/*app.get('/ping', (req, res) =>{
-  res.json({
-    status: 200,
-    message: 'pong',
-    ok: true
-  })
-})*/
 
 //Delegamos el flujo de consultas a /api/... al enrutador de status/products/...
 app.use('/api/auth', authRoute)
