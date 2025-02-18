@@ -34,13 +34,14 @@ const findUserByEmail = async(email)=>{
   return userFound
 }
 
-const createUser = async ({username, email, password,role, verificationToken}) =>{
+const createUser = async ({username, email, password, role, verificationToken}) =>{
   const nuevo_usuario = new User({
     username,
     email, 
     password,
     role,
-    verificationToken
+    verificationToken,
+    modifiedAt: null
   })
   return nuevo_usuario.save()
 }
@@ -53,14 +54,16 @@ export const registerAuthController = async (req, res) =>{
 
     // Input validation
     if (!username || !email || !password || !role) {
-      return res.status(400).json({
+      return res.json({
         status: 400,
         message: "Name, email, role and password are required.",
         ok: false
       })
     }
     // Check if user already exists
-    const user_found = await findUserByEmail(email)
+    // const user_found = await findUserByEmail(email)
+    const user_found = await userRepository.findUserByEmail(email)
+
     if (user_found) {
       return res.json({
         status: 400,
@@ -70,7 +73,6 @@ export const registerAuthController = async (req, res) =>{
     }
 
     const verificationToken = jwt.sign({email}, ENVIROMENT.SECRET_KEY_JWT, {expiresIn: '1d'})
-
     await sendMail({
       to: email, // se envia email a quien se registra
       subject: 'Verifica tu mail para Baristacafé',
@@ -91,13 +93,7 @@ export const registerAuthController = async (req, res) =>{
     const password_hash = await bcrypt.hash(password, 10)
 
     // Create a new user
-    const new_user = await createUser({
-      username: username, 
-      email, 
-      password: password_hash,
-      role: role,
-      verificationToken
-    })
+    const new_user = await userRepository.createUser({username, email, password: password_hash, role, verificationToken})
     res.json({
       status: 201,
       message: "User registered successfully",
@@ -106,6 +102,7 @@ export const registerAuthController = async (req, res) =>{
 
       }
     })
+
   } catch (error) {
     console.error(error)
     res.json({
@@ -117,57 +114,23 @@ export const registerAuthController = async (req, res) =>{
 }
 
 export const verifyEmailController = async (req,res) =>{
-  // try {
-  //   const {[QUERY.VERIFICATION_TOKEN]:verification_token} = req.query
-  //   if(!verification_token){
-  //     return res.send(`
-  //       <h1>Falta el token de verificacion!</h1>
-  //       <p>Status: 400</p>
-  //       `
-  //     )
-  //   }
-  //   //Verifica el TOKEN (lo decodifico)
-  //   const payload = jwt.verify(verification_token,ENVIROMENT.SECRET_KEY_JWT)
-  //   const user_to_verify = await findUserByEmail(payload.email)
-  //   if(!user_to_verify){
-  //     return res.send(`
-  //       <h1>El usuario no existe!</h1>
-  //       <p>Status: 404</p>
-  //       `)
-  //   }
-  //   // Comparamos si son distintos el verif del usuario con el verif que recibimos
-  //   if(user_to_verify.verificationToken !== verification_token){
-  //     return res.send(`
-  //       <h1>El token de verificacion no coincide!</h1>
-  //       <p>Status: 400</p>
-  //     `)
-  //   }
-  //   // Si todo es correcto, actualizamos el usuario del MongoDB
-  //   user_to_verify.verified = true
-  //   await user_to_verify.save()
-  //   return res.send(`
-  //     <h1>Usuario verificado con exito!</h1>
-  //     <a href='${process.env.URL_FRONTEND}'>login aqui</a>
-  //     `
-  //   )
-  // }
   try{
     const {[QUERY.VERIFICATION_TOKEN]: verification_token} = req.query
     if(!verification_token){
       return res.redirect(`${ENVIROMENT.URL_FRONTEND}/error?error=REQUEST_EMAIL_VERIFY_TOKEN`)
     }
-
     const payload = jwt.verify(verification_token, ENVIROMENT.SECRET_KEY_JWT)
-
-    const user_to_verify = await findUserByEmail(payload.email)
+    const user_to_verify = await userRepository.findUserByEmail(payload.email)
+    console.log(user_to_verify)
     if(!user_to_verify){
       return res.redirect(`${ENVIROMENT.URL_FRONTEND}/error?error=REQUEST_EMAIL_VERIFY_TOKEN`)
     }
     if(user_to_verify.verificationToken !== verification_token){
         return res.redirect(`${ENVIROMENT.URL_FRONTEND}/error?error=RESEND_EMAIL_VERIFY_TOKEN`)
     }
-    user_to_verify.verified = true
-    await user_to_verify.save()
+
+    // Update user verification status
+    await userRepository.verifyUser(user_to_verify._id)
     return res.redirect(`${ENVIROMENT.URL_FRONTEND}/login?verified=true`)
   }
   catch (error){
@@ -328,7 +291,7 @@ export const forgotPasswordAuthController = async (req, res) =>{
   try{
       console.log(req.body)
       const {email} = req.body
-      const user_found = await User.findOne({email})
+      const user_found = await userRepository.findUserByEmail({email})
       if(!user_found){
           return res.json({
               ok: false,
@@ -371,7 +334,7 @@ export const resetPasswordAuthController = async (req, res) =>{
       const {password} = req.body
 
       const {email} = jwt.verify(reset_token, ENVIROMENT.SECRET_KEY_JWT)
-      const user_found = await User.findOne({email})
+      const user_found = await userRepository.findUserByEmail({email})
       const password_hash = await bcrypt.hash(password, 10)
 
       user_found.password = password_hash

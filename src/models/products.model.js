@@ -24,8 +24,9 @@ const productSchema = new mongoose.Schema({
         required: true
     },
     seller_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Asegúrate de que esto coincida con el nombre del modelo User
+        // type: mongoose.Schema.Types.ObjectId,
+        type: String,
+        // ref: 'User', // Asegúrate de que esto coincida con el nombre del modelo User
         required: true
     },
 

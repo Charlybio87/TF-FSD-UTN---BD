@@ -1,0 +1,11 @@
+CREATE TABLE USERS( 
+    _id INT AUTO_INCREMENT PRIMARY KEY, 
+    username VARCHAR(30) NOT NULL, 
+    email VARCHAR(70) NOT NULL UNIQUE, 
+    password VARCHAR(255) NOT NULL, 
+    verified BOOLEAN DEFAULT FALSE, 
+    verificationtoken VARCHAR(255), 
+    role VARCHAR(5), 
+    activo BOOLEAN DEFAULT FALSE, 
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+)
