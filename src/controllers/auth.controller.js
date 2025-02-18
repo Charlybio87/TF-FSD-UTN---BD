@@ -79,7 +79,7 @@ export const registerAuthController = async (req, res) =>{
       html: `
       <h1>Verifica tu mail para Baristacafé</h1>
       <p>Para verificar tu cuenta, haz click en el siguiente enlace: 
-        <a href='http://localhost:${ENVIROMENT.PORT}/api/auth/verify-email?${QUERY.VERIFICATION_TOKEN}=${verificationToken}'>
+        <a href='${ENVIROMENT.URL_BACKEND}/api/auth/verify-email?${QUERY.VERIFICATION_TOKEN}=${verificationToken}'>
           Verificar email
         </a>
       </p>
@@ -166,7 +166,7 @@ export const resendVerifyEmailController = async (req, res) => {
       html: `
       <h1>Verifica tu mail para Baristacafé</h1>
       <p>Para verificar tu cuenta, haz click en el siguiente enlace: 
-        <a href='http://localhost:${ENVIROMENT.PORT}/api/auth/verify-email?${QUERY.VERIFICATION_TOKEN}=${verificationToken}'>
+        <a href='${ENVIROMENT.URL_BACKEND}/api/auth/verify-email?${QUERY.VERIFICATION_TOKEN}=${verificationToken}'>
           Verificar email
         </a>
       </p>
