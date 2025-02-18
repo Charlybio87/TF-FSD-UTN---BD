@@ -15,7 +15,7 @@ const PORT = ENVIROMENT.PORT
 // Se permite recibir consultas del origin
 app.use(
   cors({
-    origin: 'http://localhost:5173', // Direccion de dominio del frontend
+    origin: ENVIROMENT.URL_FRONTEND, // Direccion de dominio del frontend
   })
 )
 
