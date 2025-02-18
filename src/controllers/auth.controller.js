@@ -234,7 +234,7 @@ export const loginAuthController = async (req, res) => {
     }
 
     // busqueda del usuario por email
-    const user_found = await findUserByEmail(email)
+    const user_found = await userRepository.findUserByEmail(email)
 
     if (!user_found) {
         return res.json({
